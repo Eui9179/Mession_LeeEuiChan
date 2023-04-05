@@ -3,7 +3,7 @@
 
 ### 미션 요구사항 분석 & 체크리스트
 
----
+<hr>
 
 - [x] 호감대상 삭제
 - [ ] 구글 로그인 연동
@@ -11,7 +11,7 @@
 
 ### 1주차 미션 요약
 
----
+<hr>
 
 [접근방법]
 1. Member의 `instaName`과 LikeablePerson의 `fromInstaMember`를 비교하여 본인 확인
