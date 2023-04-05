@@ -54,11 +54,9 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public void deleteById(Long likeablePersonId, String username) {
+    public void deleteById(Long likeablePersonId, Member member) {
         LikeablePerson lp = likeablePersonRepository.findById(likeablePersonId)
                 .orElseThrow(() -> new DataNotFoundException("LikeablePerson", likeablePersonId));
-        Member member = memberService.findByUsername(username)
-                .orElseThrow(() -> new DataNotFoundException("Member", username));
 
         if (!compareInstaUsername(member, lp)) {
             throw new ForbiddenException();
