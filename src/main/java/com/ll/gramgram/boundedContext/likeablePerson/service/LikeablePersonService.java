@@ -1,6 +1,7 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.base.exception.DataNotFoundException;
+import com.ll.gramgram.base.exception.ForbiddenException;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -53,13 +54,20 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public void deleteById(Long lpId, String username) {
-        LikeablePerson lp = likeablePersonRepository.findById(lpId)
-                .orElseThrow(() -> new DataNotFoundException("LikeablePerson", lpId));
-        memberService.findByUsername(username)
+    public void deleteById(Long likeablePersonId, String username) {
+        LikeablePerson lp = likeablePersonRepository.findById(likeablePersonId)
+                .orElseThrow(() -> new DataNotFoundException("LikeablePerson", likeablePersonId));
+        Member member = memberService.findByUsername(username)
                 .orElseThrow(() -> new DataNotFoundException("Member", username));
 
+        if (!compareInstaUsername(member, lp)) {
+            throw new ForbiddenException();
+        }
 
+        likeablePersonRepository.deleteById(likeablePersonId);
+    }
 
+    private boolean compareInstaUsername(Member member, LikeablePerson likeablePerson) {
+        return member.getInstaMember().getUsername().equals(likeablePerson.getFromInstaMember().getUsername());
     }
 }
