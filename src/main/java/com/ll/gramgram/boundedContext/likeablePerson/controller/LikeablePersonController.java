@@ -9,17 +9,22 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Principal;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Slf4j
 @Controller
 @RequestMapping("/likeablePerson")
-@RequiredArgsConstructor
 public class LikeablePersonController {
     private final Rq rq;
     private final LikeablePersonService likeablePersonService;
@@ -58,5 +63,14 @@ public class LikeablePersonController {
         }
 
         return "usr/likeablePerson/list";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/delete/{lpId}")
+    public String deleteLikeablePerson(Principal principal, @PathVariable Long lpId) {
+        String username = principal.getName();
+        likeablePersonService.deleteById(lpId, username);
+        log.info("lpId = {}", lpId);
+        return rq.redirectWithMsg("/likeablePerson/list", "delete");
     }
 }
