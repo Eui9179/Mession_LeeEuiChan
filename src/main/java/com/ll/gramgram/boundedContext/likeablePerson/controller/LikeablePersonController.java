@@ -67,10 +67,9 @@ public class LikeablePersonController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{lpId}")
-    public String deleteLikeablePerson(Principal principal, @PathVariable Long lpId) {
+    public String deleteLikeablePerson(Principal principal, @PathVariable("lpId") Long likeablePersonId) {
         String username = principal.getName();
-        likeablePersonService.deleteById(lpId, username);
-        log.info("lpId = {}", lpId);
-        return rq.redirectWithMsg("/likeablePerson/list", "delete");
+        likeablePersonService.deleteById(likeablePersonId, username);
+        return rq.redirectWithMsg("/likeablePerson/list", "호감 대상이 삭제되었습니다.");
     }
 }
