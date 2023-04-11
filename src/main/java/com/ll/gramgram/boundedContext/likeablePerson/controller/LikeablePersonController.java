@@ -38,6 +38,7 @@ public class LikeablePersonController {
         private final int attractiveTypeCode;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String add(@Valid AddForm addForm) {
         RsData<LikeablePerson> createRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
@@ -55,18 +56,11 @@ public class LikeablePersonController {
 
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
-            List<LikeablePerson> likeablePeople = likeablePersonService.findByFromInstaMemberId(instaMember.getId());
+            List<LikeablePerson> likeablePeople = instaMember.getFromLikeablePeople();
             model.addAttribute("likeablePeople", likeablePeople);
         }
 
         return "usr/likeablePerson/list";
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{lpId}")
-    public String deleteLikeablePerson(@PathVariable("lpId") Long likeablePersonId) {
-        likeablePersonService.deleteById(likeablePersonId, rq.getMember());
-        return rq.redirectWithMsg("/likeablePerson/list", "호감 대상이 삭제되었습니다.");
     }
 
     @PreAuthorize("isAuthenticated()")
