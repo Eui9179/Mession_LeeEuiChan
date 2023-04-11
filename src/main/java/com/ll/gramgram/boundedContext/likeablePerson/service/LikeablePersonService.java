@@ -34,6 +34,17 @@ public class LikeablePersonService {
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
         }
 
+        List<LikeablePerson> likeablePeople = findByFromInstaMemberId(member.getInstaMember().getId());
+        LikeablePerson AlreadyExistedlikeablePerson = filterAlreadyExistedLikeablePerson(likeablePeople, username);
+
+        if (AlreadyExistedlikeablePerson != null) {
+            if (AlreadyExistedlikeablePerson.getAttractiveTypeCode() == attractiveTypeCode) {
+                return RsData.of("F-3", "이미 호감을 표시하였습니다.");
+            }
+            //TODO update
+        }
+
+
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
@@ -53,6 +64,22 @@ public class LikeablePersonService {
 
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
+
+    private void create() {
+        // TODO 호감 표시 생성
+    }
+
+    private void updateAttractiveTypeCode() {
+        //TODO AttractiveTypeCode 수정
+    }
+
+    private LikeablePerson filterAlreadyExistedLikeablePerson(List<LikeablePerson> likeablePeople, String username) {
+        return likeablePeople.stream()
+                .filter(likeablePerson -> likeablePerson.getToInstaMember().getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
+
 
     public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
