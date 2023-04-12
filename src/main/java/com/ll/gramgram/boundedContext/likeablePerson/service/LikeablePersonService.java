@@ -64,8 +64,15 @@ public class LikeablePersonService {
         }
 
         if (duplicateLikeablePerson.getAttractiveTypeCode() != attractiveTypeCode) {
+            String origin = duplicateLikeablePerson.getAttractiveTypeDisplayName();
+
             duplicateLikeablePerson.updateAttractiveTypeCode(attractiveTypeCode);
-            return RsData.of("S-2", "매력 포인트를 업데이트하였습니다.", duplicateLikeablePerson);
+            String updated = duplicateLikeablePerson.getAttractiveTypeDisplayName();
+            return RsData.of("S-2",
+                    duplicateLikeablePerson.getToInstaMember().getUsername()
+                            + "에 대한 호감사유를 "
+                            + origin + "에서 "
+                            + updated + "으로 변경합니다.", duplicateLikeablePerson);
         }
 
         return RsData.of("F-3", "이미 호감을 표시하였습니다.", duplicateLikeablePerson);
@@ -94,7 +101,7 @@ public class LikeablePersonService {
     }
 
     public RsData checkCountLessThanMax(Member member) {
-        int count = getLikeablePeopleCount(member.getInstaMember().getId());
+        int count = member.getInstaMember().getFromLikeablePeople().size();
         return count >= AppConfig.getLikeablePersonFromMax() ?
                 RsData.of("F-1", "호감 표시는 최대 10개까지 가능합니다.") :
                 RsData.of("S-1", "");
@@ -112,10 +119,4 @@ public class LikeablePersonService {
     private List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
-
-    public int getLikeablePeopleCount(Long fromInstaMemberId) {
-        return findByFromInstaMemberId(fromInstaMemberId).size();
-    }
-
-
 }
