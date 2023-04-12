@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,9 +40,6 @@ public class LikeablePersonControllerTests {
     private LikeablePersonService likeablePersonService;
     @Autowired
     private MemberService memberService;
-
-    @Autowired
-    private LikeablePersonService likeablePersonService;
 
     @Test
     @DisplayName("등록 폼")
@@ -136,7 +134,7 @@ public class LikeablePersonControllerTests {
     @Test
     @DisplayName("호감 표시 아이디와 매력 포인트 중복")
     @WithUserDetails("user3")
-    void t006() throws Exception {
+    void t007() throws Exception {
         ResultActions resultActions = mvc
                 .perform(post("/likeablePerson/add")
                         .with(csrf())
@@ -153,7 +151,7 @@ public class LikeablePersonControllerTests {
     @Test
     @DisplayName("호감 표시 아이디 중복 & 매력 포인트 변경")
     @WithUserDetails("user3")
-    void t007() throws Exception {
+    void t008() throws Exception {
         ResultActions resultActions = mvc
                 .perform(post("/likeablePerson/add")
                         .with(csrf())
@@ -178,7 +176,7 @@ public class LikeablePersonControllerTests {
     @Test
     @DisplayName("10개 이상 등록 시 오류")
     @WithUserDetails("user2")
-    void t008() throws Exception {
+    void t009() throws Exception {
         Member member = memberService.findByUsername("user2")
                 .orElseThrow();
 
