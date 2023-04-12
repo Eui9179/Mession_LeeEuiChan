@@ -45,6 +45,11 @@ public class LikeablePersonController {
         String username = addForm.getUsername();
         int attractiveTypeCode = addForm.getAttractiveTypeCode();
 
+        RsData likeablePeopleCount = likeablePersonService.checkCountLessThanMax(member);
+        if (likeablePeopleCount.isFail()) {
+            return rq.historyBack(likeablePeopleCount);
+        }
+
         RsData<LikeablePerson> checkOrUpdateRsData = likeablePersonService.checkDuplicateOrUpdate(member, username, attractiveTypeCode);
         if (checkOrUpdateRsData.isFail()) {
             return rq.historyBack(checkOrUpdateRsData);

@@ -1,5 +1,6 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
+import com.ll.gramgram.base.appConfig.AppConfig;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -69,15 +71,6 @@ public class LikeablePersonService {
         return RsData.of("F-3", "이미 호감을 표시하였습니다.", duplicateLikeablePerson);
     }
 
-    public Optional<LikeablePerson> findLikeablePersonOne(InstaMember instaMember, String username) {
-        return likeablePersonRepository
-                .findByFromInstaMemberAndToInstaMember_Username(instaMember, username);
-    }
-
-    public Optional<LikeablePerson> findById(Long id) {
-        return likeablePersonRepository.findById(id);
-    }
-
     @Transactional
     public RsData delete(LikeablePerson likeablePerson) {
         likeablePersonRepository.delete(likeablePerson);
@@ -99,4 +92,30 @@ public class LikeablePersonService {
 
         return RsData.of("S-1", "삭제가능합니다.");
     }
+
+    public RsData checkCountLessThanMax(Member member) {
+        int count = getLikeablePeopleCount(member.getInstaMember().getId());
+        return count >= AppConfig.getLikeablePersonFromMax() ?
+                RsData.of("F-1", "호감 표시는 최대 10개까지 가능합니다.") :
+                RsData.of("S-1", "");
+    }
+
+    public Optional<LikeablePerson> findLikeablePersonOne(InstaMember instaMember, String username) {
+        return likeablePersonRepository
+                .findByFromInstaMemberAndToInstaMember_Username(instaMember, username);
+    }
+
+    public Optional<LikeablePerson> findById(Long id) {
+        return likeablePersonRepository.findById(id);
+    }
+
+    private List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
+        return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
+    }
+
+    public int getLikeablePeopleCount(Long fromInstaMemberId) {
+        return findByFromInstaMemberId(fromInstaMemberId).size();
+    }
+
+
 }
