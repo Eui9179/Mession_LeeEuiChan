@@ -35,4 +35,8 @@ public class RsData<T> {
     public boolean isFail() {
         return isSuccess() == false;
     }
+
+    public boolean isSuccess2() {
+        return resultCode.startsWith("S-2");
+    }
 }

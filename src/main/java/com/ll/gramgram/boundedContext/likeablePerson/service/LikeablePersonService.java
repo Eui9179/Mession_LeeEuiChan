@@ -1,7 +1,5 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
-import com.ll.gramgram.base.exception.DataNotFoundException;
-import com.ll.gramgram.base.exception.ForbiddenException;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -10,12 +8,13 @@ import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRe
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,20 +33,8 @@ public class LikeablePersonService {
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
         }
 
-        List<LikeablePerson> likeablePeople = findByFromInstaMemberId(member.getInstaMember().getId());
-        LikeablePerson AlreadyExistedlikeablePerson = filterAlreadyExistedLikeablePerson(likeablePeople, username);
-
-        if (AlreadyExistedlikeablePerson != null) {
-            if (AlreadyExistedlikeablePerson.getAttractiveTypeCode() == attractiveTypeCode) {
-                return RsData.of("F-3", "이미 호감을 표시하였습니다.");
-            }
-            //TODO update
-        }
-
-
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
-
         LikeablePerson likeablePerson = LikeablePerson
                 .builder()
                 .fromInstaMember(fromInstaMember)
@@ -65,28 +52,26 @@ public class LikeablePersonService {
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
 
-    private void create() {
-        // TODO 호감 표시 생성
-    }
-
-    private void updateAttractiveTypeCode() {
-        //TODO AttractiveTypeCode 수정
-    }
-
-    private LikeablePerson filterAlreadyExistedLikeablePerson(List<LikeablePerson> likeablePeople, String username) {
-        return likeablePeople.stream()
-                .filter(likeablePerson -> likeablePerson.getToInstaMember().getUsername().equals(username))
-                .findFirst()
+    @Transactional
+    public RsData<LikeablePerson> checkDuplicateOrUpdate(Member member, String username, int attractiveTypeCode) {
+        LikeablePerson duplicateLikeablePerson = findLikeablePersonOne(member.getInstaMember(), username)
                 .orElse(null);
+
+        if (duplicateLikeablePerson == null) {
+            return RsData.of("S-1", "데이터가 존재하지 않습니다.", duplicateLikeablePerson);
+        }
+
+        if (duplicateLikeablePerson.getAttractiveTypeCode() != attractiveTypeCode) {
+            duplicateLikeablePerson.updateAttractiveTypeCode(attractiveTypeCode);
+            return RsData.of("S-2", "매력 포인트를 업데이트하였습니다.", duplicateLikeablePerson);
+        }
+
+        return RsData.of("F-3", "이미 호감을 표시하였습니다.", duplicateLikeablePerson);
     }
 
-
-    public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
-        return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
-    }
-
-    private boolean compareInstaUsername(Member member, LikeablePerson likeablePerson) {
-        return member.getInstaMember().getUsername().equals(likeablePerson.getFromInstaMember().getUsername());
+    public Optional<LikeablePerson> findLikeablePersonOne(InstaMember instaMember, String username) {
+        return likeablePersonRepository
+                .findByFromInstaMemberAndToInstaMember_Username(instaMember, username);
     }
 
     public Optional<LikeablePerson> findById(Long id) {

@@ -172,7 +172,6 @@ public class MemberControllerTests {
     }
 
     @Test
-    // @Rollback(value = false) // DB에 흔적이 남는다.
     @DisplayName("로그인 처리")
     void t005() throws Exception {
         // WHEN
@@ -199,7 +198,6 @@ public class MemberControllerTests {
     }
 
     @Test
-    // @Rollback(value = false) // DB에 흔적이 남는다.
     @DisplayName("로그인 후에 내비바에 로그인한 회원의 username")
     @WithUserDetails("user1")
         // user1로 로그인 한 상태로 진행

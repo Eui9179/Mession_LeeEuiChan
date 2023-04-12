@@ -1,6 +1,11 @@
 package com.ll.gramgram.boundedContext.likeablePerson.controller;
 
 
+import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
+import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
+import com.ll.gramgram.boundedContext.member.entity.Member;
+import com.ll.gramgram.boundedContext.member.service.MemberService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,6 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class LikeablePersonControllerTests {
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private LikeablePersonService likeablePersonService;
+    @Autowired
+    private MemberService memberService;
 
     @Test
     @DisplayName("등록 폼(인스타 인증을 안해서 폼 대신 메세지)")
@@ -148,5 +160,47 @@ public class LikeablePersonControllerTests {
                         <span class="toInstaMember_attractiveTypeDisplayName">성격</span>
                         """.stripIndent().trim())));
         ;
+    }
+
+    @Test
+    @DisplayName("호감 표시 아이디와 매력 포인트 중복")
+    @WithUserDetails("user3")
+    void t006() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf())
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "1"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("호감 표시 아이디 중복 & 매력 포인트 변경")
+    @WithUserDetails("user3")
+    void t007() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf())
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "2"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
+
+        Optional<Member> member = memberService.findByUsername("user3");
+        assertTrue(member.isPresent());
+
+        Optional<LikeablePerson> likeablePerson = likeablePersonService.findLikeablePersonOne(member.get().getInstaMember(), "insta_user4");
+        assertTrue(likeablePerson.isPresent());
+        assertEquals(likeablePerson.get().getAttractiveTypeCode(), 2);
     }
 }
