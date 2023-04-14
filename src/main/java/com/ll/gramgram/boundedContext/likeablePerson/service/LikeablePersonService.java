@@ -30,13 +30,17 @@ public class LikeablePersonService {
     private final MemberService memberService;
 
     @Transactional
-    public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
+    public RsData like(Member member, String username, int attractiveTypeCode) {
         if (member.hasConnectedInstaMember() == false) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
+            return RsData.of("F-1", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
 
         if (member.getInstaMember().getUsername().equals(username)) {
-            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
+            return RsData.of("F-2", "본인을 호감상대로 등록할 수 없습니다.");
+        }
+
+        if (isCountLessThanMax(member) == false) {
+            return RsData.of("F-3", "최대 " + AppConfig.getLikeablePersonFromMax() +"명까지 등록할 수 있습니다.");
         }
 
         InstaMember fromInstaMember = member.getInstaMember();
@@ -59,7 +63,7 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public RsData<LikeablePerson> checkDuplicateOrUpdate(Member member, String username, int attractiveTypeCode) {
+    public RsData<LikeablePerson> handleDuplicate(Member member, String username, int attractiveTypeCode) {
         LikeablePerson duplicateLikeablePerson = findLikeablePersonOne(member.getInstaMember(), username)
                 .orElse(null);
 
@@ -104,11 +108,9 @@ public class LikeablePersonService {
         return RsData.of("S-1", "삭제가능합니다.");
     }
 
-    public RsData checkCountLessThanMax(Member member) {
+    public boolean isCountLessThanMax(Member member) {
         int count = member.getInstaMember().getFromLikeablePeople().size();
-        return count >= AppConfig.getLikeablePersonFromMax() ?
-                RsData.of("F-1", "호감 표시는 최대 10개까지 가능합니다.") :
-                RsData.of("S-1", "");
+        return count < AppConfig.getLikeablePersonFromMax();
     }
 
     public Optional<LikeablePerson> findLikeablePersonOne(InstaMember instaMember, String username) {

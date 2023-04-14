@@ -32,11 +32,11 @@ public class RsData<T> {
         return resultCode.startsWith("S-");
     }
 
-    public boolean isFail() {
-        return isSuccess() == false;
-    }
-
     public boolean isSuccess2() {
         return resultCode.startsWith("S-2");
+    }
+
+    public boolean isFail() {
+        return isSuccess() == false;
     }
 }
