@@ -14,6 +14,7 @@ import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class LikeablePersonService {
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
-    private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
@@ -57,6 +58,7 @@ public class LikeablePersonService {
 
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
+
 
     @Transactional
     public RsData<LikeablePerson> checkDuplicateOrUpdate(Member member, String username, int attractiveTypeCode) {

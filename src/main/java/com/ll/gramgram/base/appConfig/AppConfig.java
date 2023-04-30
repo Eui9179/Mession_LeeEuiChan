@@ -9,7 +9,7 @@ public class AppConfig {
     @Getter
     private static long likeablePersonFromMax;
 
-    @Value("${custom.data.likeable_person.max}")
+    @Value("${custom.likeablePerson.from.max}")
     public void setLikeablePersonFromMax(long likeablePersonFromMax) {
         AppConfig.likeablePersonFromMax = likeablePersonFromMax;
     }
