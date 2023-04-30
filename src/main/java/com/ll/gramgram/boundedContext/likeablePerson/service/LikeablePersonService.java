@@ -1,7 +1,10 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
+
+import com.ll.gramgram.base.appConfig.AppConfig;
 import com.ll.gramgram.base.exception.DataNotFoundException;
 import com.ll.gramgram.base.exception.ForbiddenException;
+
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -10,12 +13,14 @@ import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRe
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -36,7 +41,6 @@ public class LikeablePersonService {
 
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
-
         LikeablePerson likeablePerson = LikeablePerson
                 .builder()
                 .fromInstaMember(fromInstaMember)
@@ -54,16 +58,28 @@ public class LikeablePersonService {
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
 
-    public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
-        return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
-    }
+    @Transactional
+    public RsData<LikeablePerson> checkDuplicateOrUpdate(Member member, String username, int attractiveTypeCode) {
+        LikeablePerson duplicateLikeablePerson = findLikeablePersonOne(member.getInstaMember(), username)
+                .orElse(null);
 
-    private boolean compareInstaUsername(Member member, LikeablePerson likeablePerson) {
-        return member.getInstaMember().getUsername().equals(likeablePerson.getFromInstaMember().getUsername());
-    }
+        if (duplicateLikeablePerson == null) {
+            return RsData.of("S-1", "데이터가 존재하지 않습니다.", duplicateLikeablePerson);
+        }
 
-    public Optional<LikeablePerson> findById(Long id) {
-        return likeablePersonRepository.findById(id);
+        if (duplicateLikeablePerson.getAttractiveTypeCode() != attractiveTypeCode) {
+            String origin = duplicateLikeablePerson.getAttractiveTypeDisplayName();
+
+            duplicateLikeablePerson.updateAttractiveTypeCode(attractiveTypeCode);
+            String updated = duplicateLikeablePerson.getAttractiveTypeDisplayName();
+            return RsData.of("S-2",
+                    duplicateLikeablePerson.getToInstaMember().getUsername()
+                            + "에 대한 호감사유를 "
+                            + origin + "에서 "
+                            + updated + "으로 변경합니다.", duplicateLikeablePerson);
+        }
+
+        return RsData.of("F-3", "이미 호감을 표시하였습니다.", duplicateLikeablePerson);
     }
 
     @Transactional
@@ -86,5 +102,29 @@ public class LikeablePersonService {
             return RsData.of("F-2", "권한이 없습니다.");
 
         return RsData.of("S-1", "삭제가능합니다.");
+    }
+
+    public RsData checkCountLessThanMax(Member member) {
+        int count = member.getInstaMember().getFromLikeablePeople().size();
+        return count >= AppConfig.getLikeablePersonFromMax() ?
+                RsData.of("F-1", "호감 표시는 최대 10개까지 가능합니다.") :
+                RsData.of("S-1", "");
+    }
+
+    public Optional<LikeablePerson> findLikeablePersonOne(InstaMember instaMember, String username) {
+        return likeablePersonRepository
+                .findByFromInstaMemberAndToInstaMember_Username(instaMember, username);
+    }
+
+    public Optional<LikeablePerson> findById(Long id) {
+        return likeablePersonRepository.findById(id);
+    }
+
+    private List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
+        return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
+    }
+
+    private boolean compareInstaUsername(Member member, LikeablePerson likeablePerson) {
+        return member.getInstaMember().getUsername().equals(likeablePerson.getFromInstaMember().getUsername());
     }
 }

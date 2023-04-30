@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -20,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,7 +63,93 @@ public class MemberControllerTests {
     }
 
     @Test
-    @DisplayName("로그인")
+    @DisplayName("회원가입시에 올바른 데이터를 넘기지 않으면 400")
+    void t003() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/member/join")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "user10")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is4xxClientError());
+
+        // WHEN
+        resultActions = mvc
+                .perform(post("/member/join")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("password", "1234")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is4xxClientError());
+
+        // WHEN
+        resultActions = mvc
+                .perform(post("/member/join")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "user10" + "a".repeat(30))
+                        .param("password", "1234")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is4xxClientError());
+
+        // WHEN
+        resultActions = mvc
+                .perform(post("/member/join")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "user10")
+                        .param("password", "1234" + "a".repeat(30))
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("로그인 폼")
+    void t004() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(get("/member/login"))
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("showLogin"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("""
+                        <input type="text" name="username"
+                        """.stripIndent().trim())))
+                .andExpect(content().string(containsString("""
+                        <input type="password" name="password"
+                        """.stripIndent().trim())))
+                .andExpect(content().string(containsString("""
+                        <input type="submit" value="로그인"
+                        """.stripIndent().trim())));
+    }
+
+    @Test
+    @DisplayName("로그인 처리")
     void t005() throws Exception {
         //when
         ResultActions resultActions = mvc
@@ -81,5 +170,23 @@ public class MemberControllerTests {
         resultActions
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("/**"));
+    }
+    @Test
+    @DisplayName("로그인 후에 내비바에 로그인한 회원의 username")
+    @WithUserDetails("user1")
+    void t006() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(get("/member/me"))
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("showMe"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("""
+                        user1님 환영합니다.
+                        """.stripIndent().trim())));
     }
 }

@@ -5,6 +5,7 @@ import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
+import com.ll.gramgram.boundedContext.member.entity.Member;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,7 +42,25 @@ public class LikeablePersonController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String add(@Valid AddForm addForm) {
-        RsData<LikeablePerson> createRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
+        Member member = rq.getMember();
+        String username = addForm.getUsername();
+        int attractiveTypeCode = addForm.getAttractiveTypeCode();
+
+        RsData likeablePeopleCount = likeablePersonService.checkCountLessThanMax(member);
+        if (likeablePeopleCount.isFail()) {
+            return rq.historyBack(likeablePeopleCount);
+        }
+
+        RsData<LikeablePerson> checkOrUpdateRsData = likeablePersonService.checkDuplicateOrUpdate(member, username, attractiveTypeCode);
+        if (checkOrUpdateRsData.isFail()) {
+            return rq.historyBack(checkOrUpdateRsData);
+        }
+
+        if (checkOrUpdateRsData.isSuccess2()) {
+            return rq.redirectWithMsg("/likeablePerson/list", checkOrUpdateRsData);
+        }
+
+        RsData<LikeablePerson> createRsData = likeablePersonService.like(member, username, attractiveTypeCode);
 
         if (createRsData.isFail()) {
             return rq.historyBack(createRsData);
