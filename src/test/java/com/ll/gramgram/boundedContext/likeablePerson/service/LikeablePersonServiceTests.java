@@ -8,19 +8,19 @@ import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.from;
 
 @SpringBootTest
 @Transactional
@@ -262,5 +262,21 @@ public class LikeablePersonServiceTests {
         assertThat(
                 likeablePersonToBts.getModifyUnlockDate().isAfter(coolTime)
         ).isTrue();
+    }
+
+    @Test
+    @DisplayName("쿨타임 계산 테스트")
+    void t009() {
+        String fromInstaMemberUsername = "insta_user3";
+        String toInstaMemberUsername = "insta_user4";
+
+        LikeablePerson likeablePerson = likeablePersonService
+                .findByFromInstaMember_usernameAndToInstaMember_username(fromInstaMemberUsername, toInstaMemberUsername)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 를 확인해주세요"));
+
+        LocalDateTime modifyUnlockDate = likeablePerson.getModifyUnlockDate();
+        LocalDateTime now = LocalDateTime.now().plusSeconds(AppConfig.getLikeablePersonModifyCoolTime() + 10);
+
+        assertThat(modifyUnlockDate.isBefore(now)).isTrue();
     }
 }
