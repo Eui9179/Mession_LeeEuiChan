@@ -35,6 +35,4 @@ public class InstaMemberEventListener {
     public void listen(EventAfterFromInstaMemberChangeGender event) {
         instaMemberService.whenAfterFromInstaMemberChangeGender(event.getInstaMember(), event.getOldGender());
     }
-
-
 }

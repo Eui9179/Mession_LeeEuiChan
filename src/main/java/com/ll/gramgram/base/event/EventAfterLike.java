@@ -12,5 +12,4 @@ public class EventAfterLike extends ApplicationEvent {
         super(source);
         this.likeablePerson = likeablePerson;
     }
-
 }

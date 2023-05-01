@@ -19,4 +19,3 @@ public class InstaMemberSnapshot extends InstaMemberBase {
     @ManyToOne
     private InstaMember instaMember;
 }
-
