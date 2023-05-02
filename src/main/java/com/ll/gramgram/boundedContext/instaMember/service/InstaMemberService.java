@@ -112,8 +112,6 @@ public class InstaMemberService {
         InstaMemberSnapshot snapshot = toInstaMember.snapshot("Like");
 
         saveSnapshot(snapshot);
-
-        // 알림
     }
 
     public void whenBeforeCancelLike(LikeablePerson likeablePerson) {

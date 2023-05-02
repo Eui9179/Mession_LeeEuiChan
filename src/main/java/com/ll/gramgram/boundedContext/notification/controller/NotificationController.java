@@ -1,7 +1,7 @@
 package com.ll.gramgram.boundedContext.notification.controller;
 
 import com.ll.gramgram.base.rq.Rq;
-import com.ll.gramgram.boundedContext.notification.entity.Notification;
+import com.ll.gramgram.boundedContext.notification.dto.NotReadNotification;
 import com.ll.gramgram.boundedContext.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,8 +26,7 @@ public class NotificationController {
             return rq.redirectWithMsg("/usr/instaMember/connect", "먼저 본인의 인스타그램 아이디를 입력해주세요.");
         }
 
-        List<Notification> notifications = notificationService.findByToInstaMember(rq.getMember().getInstaMember());
-
+        List<NotReadNotification> notifications = notificationService.findByToInstaMemberNotRead(rq.getMember().getInstaMember());
 
         model.addAttribute("notifications", notifications);
 

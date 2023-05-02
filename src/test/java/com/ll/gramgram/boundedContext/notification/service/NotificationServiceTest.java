@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,5 +110,14 @@ class NotificationServiceTest {
 
         assertEquals(oldAttractiveTypeCode, notification.getOldAttractiveTypeCode());
         assertEquals(newAttractiveTypeCode, notification.getNewAttractiveTypeCode());
+    }
+
+    @Test
+    @DisplayName("시간차이 테스트")
+    void t004() {
+        LocalDateTime dateTime = LocalDateTime.of(2023, 5, 1, 12, 0, 0);
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(dateTime, now);
+        System.out.println("시간 차이: " + duration.toDays() + "일" + duration.toHours() % 24 + "시," + duration.toMinutes() % 60 + "분");
     }
 }
