@@ -19,19 +19,6 @@ public class NotificationService {
     public List<Notification> findByToInstaMember(InstaMember toInstaMember) {
         return notificationRepository.findByToInstaMember(toInstaMember);
     }
-        /**
-         * private LocalDateTime readDate;
-         *
-         * @ManyToOne
-         * @ToString.Exclude private InstaMember toInstaMember; // 메세지 받는 사람(호감 받는 사람)
-         * @ManyToOne
-         * @ToString.Exclude private InstaMember fromInstaMember; // 메세지를 발생시킨 행위를 한 사람(호감표시한 사람)
-         * private String typeCode; // 호감표시=Like, 호감사유변경=ModifyAttractiveType
-         * private String oldGender; // 해당사항 없으면 null
-         * private int oldAttractiveTypeCode; // 해당사항 없으면 0
-         * private String newGender; // 해당사항 없으면 null
-         * private int newAttractiveTypeCode; // 해당사항 없으면 0
-         */
 
     @Transactional
     public void whenAfterLike(LikeablePerson likeablePerson) {
@@ -60,17 +47,3 @@ public class NotificationService {
     }
 
 }
-        /**
-         * to, from, typeCode, oldGender=null, newGender=null, oldAttrac=null, newAttrac=null
-         *
-         * readDate = null
-         * to
-         * from
-         * typeCode -> 좋아요인지 호감사유 변경인지
-         *
-         * oldGender -> 만약 성별이 바뀌었다면 저장
-         * newGender -> ''
-         *
-         * oldAttractiveTypeCode -> 호감사유가 변경되었다면 저장
-         * newAttractiveTypeCode -> ''
-         */
