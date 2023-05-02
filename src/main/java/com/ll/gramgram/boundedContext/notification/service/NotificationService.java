@@ -1,6 +1,5 @@
 package com.ll.gramgram.boundedContext.notification.service;
 
-import com.ll.gramgram.base.event.EventAfterLike;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.notification.entity.Notification;
@@ -21,33 +20,45 @@ public class NotificationService {
         return notificationRepository.findByToInstaMember(toInstaMember);
     }
         /**
-         *     private LocalDateTime readDate;
-         *     @ManyToOne
-         *     @ToString.Exclude
-         *     private InstaMember toInstaMember; // 메세지 받는 사람(호감 받는 사람)
-         *     @ManyToOne
-         *     @ToString.Exclude
-         *     private InstaMember fromInstaMember; // 메세지를 발생시킨 행위를 한 사람(호감표시한 사람)
-         *     private String typeCode; // 호감표시=Like, 호감사유변경=ModifyAttractiveType
-         *     private String oldGender; // 해당사항 없으면 null
-         *     private int oldAttractiveTypeCode; // 해당사항 없으면 0
-         *     private String newGender; // 해당사항 없으면 null
-         *     private int newAttractiveTypeCode; // 해당사항 없으면 0
+         * private LocalDateTime readDate;
+         *
+         * @ManyToOne
+         * @ToString.Exclude private InstaMember toInstaMember; // 메세지 받는 사람(호감 받는 사람)
+         * @ManyToOne
+         * @ToString.Exclude private InstaMember fromInstaMember; // 메세지를 발생시킨 행위를 한 사람(호감표시한 사람)
+         * private String typeCode; // 호감표시=Like, 호감사유변경=ModifyAttractiveType
+         * private String oldGender; // 해당사항 없으면 null
+         * private int oldAttractiveTypeCode; // 해당사항 없으면 0
+         * private String newGender; // 해당사항 없으면 null
+         * private int newAttractiveTypeCode; // 해당사항 없으면 0
          */
 
     @Transactional
-    public Notification whenAfterLike(LikeablePerson likeablePerson) {
+    public void whenAfterLike(LikeablePerson likeablePerson) {
         Notification notification = Notification.builder()
                 .toInstaMember(likeablePerson.getToInstaMember())
                 .fromInstaMember(likeablePerson.getFromInstaMember())
-                .typeCode(TypeCode.Like)
+                .typeCode(TypeCode.LIKE)
                 .build();
-        return notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
 
     public List<Notification> findAll() {
         return notificationRepository.findAll();
     }
+
+    @Transactional
+    public void whenAfterModifyAttractiveType(LikeablePerson likeablePerson, int oldAttractiveTypeCode, int newAttractiveTypeCode) {
+        Notification notification = Notification.builder()
+                .toInstaMember(likeablePerson.getToInstaMember())
+                .fromInstaMember(likeablePerson.getFromInstaMember())
+                .oldAttractiveTypeCode(oldAttractiveTypeCode)
+                .newAttractiveTypeCode(newAttractiveTypeCode)
+                .typeCode(TypeCode.MODIFY_ATTRACTIVE_TYPE)
+                .build();
+        notificationRepository.save(notification);
+    }
+
 }
         /**
          * to, from, typeCode, oldGender=null, newGender=null, oldAttrac=null, newAttrac=null

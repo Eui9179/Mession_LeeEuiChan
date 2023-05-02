@@ -32,7 +32,7 @@ class NotificationServiceTest {
     private MemberService memberService;
 
     @Test
-    @DisplayName("알림 whenAfterLike 기본 저장 테스트")
+    @DisplayName("whenAfterLike 기본 저장 테스트")
     void t001() {
         //given
         String fromInstaMemberUsername = "insta_user3";
@@ -48,32 +48,65 @@ class NotificationServiceTest {
         //then
         List<Notification> notifications = notificationService.findByToInstaMember(likeablePerson.getToInstaMember());
         assertTrue(notifications.size() > 0);
-        assertEquals(TypeCode.Like, notifications.get(0).getTypeCode());
+        assertEquals(TypeCode.LIKE, notifications.get(0).getTypeCode());
     }
 
     @Test
-    @DisplayName("좋아요 기능 사용 시 Notification 저장 테스트")
+    @DisplayName("like 기능 사용 시 Notification 저장 테스트")
     void t002() {
         //given
         String memberName = "user2";
         String instaUserName = "insta_user3";
-        Member member1 = memberService.findByUsername(memberName)
+        Member member = memberService.findByUsername(memberName)
                 .orElseThrow(() -> new RuntimeException("유저데이터가 없습니다. base/initDate/NotProd.java 를 확인해보세요."));
 
         //when
-        likeablePersonService.like(member1, instaUserName, 1);
+        likeablePersonService.like(member, instaUserName, 1);
 
         //then
         List<Notification> notifications = notificationService.findAll();
 
         Optional<Notification> opNotification = notifications.stream()
-                .filter(n -> n.getFromInstaMember().equals(member1.getInstaMember()) &&
+                .filter(n -> n.getFromInstaMember().equals(member.getInstaMember()) &&
                         n.getToInstaMember().getUsername().equals(instaUserName))
                 .findFirst();
 
         assertTrue(opNotification.isPresent());
 
         Notification notification = opNotification.get();
-        assertEquals(TypeCode.Like, notification.getTypeCode());
+        assertEquals(TypeCode.LIKE, notification.getTypeCode());
+    }
+
+    @Test
+    @DisplayName("호감 사유 변경 시 Notification 저장 테스트")
+    void t003() {
+        //given
+        String memberName = "user3";
+        Member member = memberService.findByUsername(memberName)
+                .orElseThrow(() -> new RuntimeException("데이터가 존재하지 않습니다. /base/initDate/NotProd.java 를 확인해주세요"));
+
+        String instaUserName = "insta_user4";
+        LikeablePerson likeablePerson = likeablePersonService
+                .findByFromInstaMember_usernameAndToInstaMember_username(member.getInstaMember().getUsername(), instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 존재하지 않습니다. /base/initDate/NotProd.java 를 확인해주세요"));
+
+        //when
+        int oldAttractiveTypeCode = likeablePerson.getAttractiveTypeCode();
+        int newAttractiveTypeCode = 2;
+        likeablePersonService.modifyAttractive(member, likeablePerson, newAttractiveTypeCode);
+
+        //then
+        List<Notification> notifications = notificationService.findAll();
+        Optional<Notification> opNotification = notifications.stream()
+                .filter(n -> n.getFromInstaMember().equals(likeablePerson.getFromInstaMember()) &&
+                        n.getToInstaMember().equals(likeablePerson.getToInstaMember()) &&
+                        n.getTypeCode().equals(TypeCode.MODIFY_ATTRACTIVE_TYPE))
+                .findFirst();
+
+        assertTrue(opNotification.isPresent());
+        Notification notification = opNotification.get();
+
+        assertEquals(oldAttractiveTypeCode, notification.getOldAttractiveTypeCode());
+        assertEquals(newAttractiveTypeCode, notification.getNewAttractiveTypeCode());
     }
 }
