@@ -272,7 +272,7 @@ public class LikeablePersonServiceTests {
 
         LikeablePerson likeablePerson = likeablePersonService
                 .findByFromInstaMember_usernameAndToInstaMember_username(fromInstaMemberUsername, toInstaMemberUsername)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 를 확인해주세요"));
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. base/initDate/NotProd.java 를 확인해보세요"));
 
         LocalDateTime modifyUnlockDate = likeablePerson.getModifyUnlockDate();
         LocalDateTime now = LocalDateTime.now().plusSeconds(AppConfig.getLikeablePersonModifyCoolTime() + 10);
