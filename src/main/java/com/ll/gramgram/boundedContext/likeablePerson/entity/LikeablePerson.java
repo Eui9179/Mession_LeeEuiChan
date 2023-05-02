@@ -40,10 +40,9 @@ public class LikeablePerson extends BaseEntity {
     }
 
     public String getModifyUnlockDateRemainStrHuman() {
-        LocalDateTime modifyDateTime = modifyUnlockDate;
         LocalDateTime now = LocalDateTime.now().minusSeconds(60);
 
-        Duration duration = Duration.between(now, modifyDateTime);
+        Duration duration = Duration.between(now, modifyUnlockDate);
 
         long hour = duration.toHours() % 24;
         long minutes = duration.toMinutes() % 60;
