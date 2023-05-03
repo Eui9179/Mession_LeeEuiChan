@@ -1,5 +1,6 @@
 package com.ll.gramgram.boundedContext.notification.service;
 
+import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.notification.dto.NotReadNotification;
@@ -29,7 +30,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<NotReadNotification> findByToInstaMemberNotRead(InstaMember toInstaMember) {
+    public RsData findByToInstaMemberNotRead(InstaMember toInstaMember) {
         List<Notification> notifications = notificationRepository
                 .findByToInstaMemberAndReadDateIsNullOrderByCreateDateDesc(toInstaMember);
         List<NotReadNotification> notReadNotifications = new ArrayList<>();
@@ -61,7 +62,7 @@ public class NotificationService {
                 notReadNotifications.add(notReadNotification);
             }
         }
-        return notReadNotifications;
+        return RsData.of("S-1", "", notReadNotifications);
     }
 
     @Transactional
