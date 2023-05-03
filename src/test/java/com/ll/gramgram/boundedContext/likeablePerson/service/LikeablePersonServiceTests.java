@@ -3,6 +3,7 @@ package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.TestUt;
 import com.ll.gramgram.base.appConfig.AppConfig;
+import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
@@ -244,7 +245,7 @@ public class LikeablePersonServiceTests {
     @DisplayName("호감사유를 변경하면 쿨타임이 갱신된다.")
     void t008() throws Exception {
         // 현재시점 기준에서 쿨타임이 다 차는 시간을 구한다.(미래)
-        LocalDateTime coolTime = AppConfig.genLikeablePersonModifyUnlockDate();
+        LocalDateTime now = LocalDateTime.now();
 
         Member memberUser3 = memberService.findByUsername("user3").orElseThrow();
         // 호감표시를 생성한다.
@@ -253,15 +254,15 @@ public class LikeablePersonServiceTests {
         // 호감표시를 생성하면 쿨타임이 지정되기 때문에, 그래서 바로 수정이 안된다.
         // 그래서 강제로 쿨타임이 지난것으로 만든다.
         // 테스트를 위해서 억지로 값을 넣는다.
-        TestUt.setFieldValue(likeablePersonToBts, "modifyUnlockDate", LocalDateTime.now().minusSeconds(-1));
+        TestUt.setFieldValue(likeablePersonToBts, "modifyUnlockDate", LocalDateTime.now().minusSeconds(1));
+
+        assertThat(likeablePersonToBts.isModifyUnlocked()).isTrue();
 
         // 수정을 하면 쿨타임이 갱신된다.
         likeablePersonService.modifyAttractive(memberUser3, likeablePersonToBts, 1);
 
-        // 갱신 되었는지 확인
-        assertThat(
-                likeablePersonToBts.getModifyUnlockDate().isAfter(coolTime)
-        ).isTrue();
+        // 쿨타임이 갱신되어서 다시 수정이 막힘
+        assertThat(likeablePersonToBts.isModifyUnlocked()).isFalse();
     }
 
     @Test
