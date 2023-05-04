@@ -26,7 +26,7 @@ public class NotificationService {
     }
 
     public boolean isNotRead(InstaMember toInstaMember) {
-        return !notificationRepository.findByToInstaMemberAndReadDateIsNull(toInstaMember).isEmpty();
+        return notificationRepository.countByToInstaMemberAndReadDateIsNull(toInstaMember) > 0;
     }
 
     @Transactional
