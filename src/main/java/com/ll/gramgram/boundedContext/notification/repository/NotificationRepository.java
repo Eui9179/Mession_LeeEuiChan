@@ -8,6 +8,11 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByToInstaMember(InstaMember toInstaMember);
-    long countByToInstaMemberAndReadDateIsNull(InstaMember toInstaMember);
     List<Notification> findByToInstaMemberAndReadDateIsNullOrderByCreateDateDesc(InstaMember toInstaMember);
+
+    List<Notification> findByToInstaMemberOrderByIdDesc(InstaMember toInstaMember);
+
+    List<Notification> findByToInstaMember_usernameOrderByIdDesc(String username);
+    long countByToInstaMemberAndReadDateIsNull(InstaMember toInstaMember);
+
 }

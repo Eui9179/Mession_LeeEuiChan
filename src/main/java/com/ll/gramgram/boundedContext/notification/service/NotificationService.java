@@ -22,7 +22,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     public List<Notification> findByToInstaMember(InstaMember toInstaMember) {
-        return notificationRepository.findByToInstaMember(toInstaMember);
+        return notificationRepository.findByToInstaMemberOrderByIdDesc(toInstaMember);
     }
 
     public boolean isNotRead(InstaMember toInstaMember) {
@@ -36,7 +36,7 @@ public class NotificationService {
         List<NotReadNotification> notReadNotifications = new ArrayList<>();
 
         for (Notification notification : notifications) {
-            notification.read(LocalDateTime.now()); // 읽음으로 표시
+//            notification.read(LocalDateTime.now()); // 읽음으로 표시
             InstaMember fromInstaMember = notification.getFromInstaMember();
 
             if (notification.getTypeCode().equals(TypeCode.LIKE)) {
@@ -66,11 +66,22 @@ public class NotificationService {
     }
 
     @Transactional
-    public void whenAfterLike(LikeablePerson likeablePerson) {
+    public RsData markAsRead(List<Notification> notifications) {
+        notifications
+                .stream()
+                .filter(notification -> !notification.isRead())
+                .forEach(Notification::markAsRead);
+
+        return RsData.of("S-1", "읽음 처리 되었습니다.");
+    }
+
+    @Transactional
+    public void makeLike(LikeablePerson likeablePerson) {
         Notification notification = Notification.builder()
                 .toInstaMember(likeablePerson.getToInstaMember())
                 .fromInstaMember(likeablePerson.getFromInstaMember())
                 .newAttractiveTypeCode(likeablePerson.getAttractiveTypeCode())
+                .newGender(likeablePerson.getFromInstaMember().getGender())
                 .typeCode(TypeCode.LIKE)
                 .build();
         notificationRepository.save(notification);
@@ -81,12 +92,13 @@ public class NotificationService {
     }
 
     @Transactional
-    public void whenAfterModifyAttractiveType(LikeablePerson likeablePerson, int oldAttractiveTypeCode, int newAttractiveTypeCode) {
+    public void makeModifyAttractive(LikeablePerson likeablePerson, int oldAttractiveTypeCode, int newAttractiveTypeCode) {
         Notification notification = Notification.builder()
                 .toInstaMember(likeablePerson.getToInstaMember())
                 .fromInstaMember(likeablePerson.getFromInstaMember())
                 .oldAttractiveTypeCode(oldAttractiveTypeCode)
                 .newAttractiveTypeCode(newAttractiveTypeCode)
+                .newGender(likeablePerson.getFromInstaMember().getGender())
                 .typeCode(TypeCode.MODIFY_ATTRACTIVE_TYPE)
                 .build();
         notificationRepository.save(notification);

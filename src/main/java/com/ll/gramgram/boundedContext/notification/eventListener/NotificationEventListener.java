@@ -15,12 +15,12 @@ public class NotificationEventListener {
 
     @EventListener
     public void listen(EventAfterLike event) {
-        notificationService.whenAfterLike(event.getLikeablePerson());
+        notificationService.makeLike(event.getLikeablePerson());
     }
 
     @EventListener
     public void listen(EventAfterModifyAttractiveType event) {
         notificationService
-                .whenAfterModifyAttractiveType(event.getLikeablePerson(), event.getOldAttractiveTypeCode(), event.getNewAttractiveTypeCode());
+                .makeModifyAttractive(event.getLikeablePerson(), event.getOldAttractiveTypeCode(), event.getNewAttractiveTypeCode());
     }
 }

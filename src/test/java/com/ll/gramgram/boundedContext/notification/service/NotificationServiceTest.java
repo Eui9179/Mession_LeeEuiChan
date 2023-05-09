@@ -45,7 +45,7 @@ class NotificationServiceTest {
                 .orElseThrow(() -> new RuntimeException("데이터를 찾을 수 없습니다."));
 
         //when
-        notificationService.whenAfterLike(likeablePerson);
+        notificationService.makeLike(likeablePerson);
 
         //then
         List<Notification> notifications = notificationService.findByToInstaMember(likeablePerson.getToInstaMember());

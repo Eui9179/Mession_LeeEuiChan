@@ -3,13 +3,11 @@ package com.ll.gramgram.base.rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
-import com.ll.gramgram.boundedContext.notification.entity.Notification;
 import com.ll.gramgram.boundedContext.notification.service.NotificationService;
 import com.ll.gramgram.standard.util.Ut;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -18,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Component
 @RequestScope
@@ -96,7 +94,7 @@ public class Rq {
         return "common/js";
     }
 
-    public boolean isNotification() {
+    public boolean hasUnreadNotifications() {
         Member member = getMember();
         return notificationService.isNotRead(member.getInstaMember());
     }
@@ -141,5 +139,11 @@ public class Rq {
 
     public void removeSessionAttr(String name) {
         session.removeAttribute(name);
+    }
+
+    public String getParamsJsonStr() {
+        Map<String, String[]> parameterMap = req.getParameterMap();
+
+        return Ut.json.toStr(parameterMap);
     }
 }

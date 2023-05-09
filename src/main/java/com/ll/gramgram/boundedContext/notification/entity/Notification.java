@@ -2,6 +2,7 @@ package com.ll.gramgram.boundedContext.notification.entity;
 
 import com.ll.gramgram.base.baseEntity.BaseEntity;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.standard.util.Ut;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -45,15 +46,36 @@ public class Notification extends BaseEntity {
     }
 
     public String getOldAttractiveTypeDisplayName() {
-        return switch (newAttractiveTypeCode) {
+        return switch (oldAttractiveTypeCode) {
             case 1 -> "외모";
             case 2 -> "성격";
             default -> "능력";
         };
     }
 
-    public void read(LocalDateTime readDate) {
-        this.readDate = readDate;
+    public String getTypeCodeToString() {
+        return typeCode.toString();
+    }
+
+    public String getNewGenderDisplayName() {
+        return newGender.equals("W") ? "여성" : "남성";
+    }
+
+    public void markAsRead() {
+        this.readDate = LocalDateTime.now();
+    }
+
+    public boolean isRead() {
+        return readDate != null;
+    }
+
+    public boolean isHot() {
+        // 만들어진지 60분이 안되었다면 hot 으로 설정
+        return getCreateDate().isAfter(LocalDateTime.now().minusMinutes(60));
+    }
+
+    public String getCreateDateAfterStrHuman() {
+        return Ut.time.diffFormat1Human(LocalDateTime.now(), getCreateDate());
     }
 }
 
