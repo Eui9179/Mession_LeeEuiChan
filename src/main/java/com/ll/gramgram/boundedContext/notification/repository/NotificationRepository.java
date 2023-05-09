@@ -11,5 +11,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByToInstaMemberAndReadDateIsNullOrderByCreateDateDesc(InstaMember toInstaMember);
     List<Notification> findByToInstaMemberOrderByIdDesc(InstaMember toInstaMember);
     List<Notification> findByToInstaMember_usernameOrderByIdDesc(String username);
-    long countByToInstaMemberAndReadDateIsNull(InstaMember toInstaMember)
+    long countByToInstaMemberAndReadDateIsNull(InstaMember toInstaMember);
 }
