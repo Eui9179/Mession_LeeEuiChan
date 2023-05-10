@@ -129,18 +129,19 @@ public class LikeablePersonController {
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
             // 해당 인스타회원이 좋아하는 사람들 목록
-            List<LikeablePerson> likeablePeople = instaMember.getToLikeablePeople();
-            model.addAttribute("likeablePeople", likeablePeople);
+            RsData likeablePeople = likeablePersonService.findByToInstaMemberWithFilter(
+                    instaMember, searchFilter.gender, searchFilter.attractiveTypeCode, searchFilter.sortCode
+            );
+            model.addAttribute("likeablePeople", likeablePeople.getData());
         }
 
         return "usr/likeablePerson/toList";
     }
 
     @Setter
-    private static class SearchFilter {
+    public static class SearchFilter {
         private String gender;
         private Integer attractiveTypeCode;
         private Integer sortCode = 1; // 기본값
     }
-
 }

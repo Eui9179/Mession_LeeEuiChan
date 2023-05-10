@@ -1,9 +1,12 @@
 package com.ll.gramgram.boundedContext.likeablePerson.repository;
 
+import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.ll.gramgram.boundedContext.likeablePerson.entity.QLikeablePerson.likeablePerson;
@@ -25,5 +28,36 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
                         )
                         .fetchOne()
         );
+    }
+
+    @Override
+    public List<LikeablePerson> findQslByToInstaMemberWithFilter(
+            InstaMember toInstaMember ,String gender, Integer attractiveTypeCode, Integer sortCode) {
+        if (toInstaMember == null) {
+            return null;
+        }
+
+        return jpaQueryFactory
+                .selectFrom(likeablePerson)
+                .where(eqToInstaMember(toInstaMember), eqGender(gender), eqAttractiveTypeCode(attractiveTypeCode))
+                .fetch();
+    }
+
+    private BooleanExpression eqToInstaMember(InstaMember toInstaMember) {
+        return likeablePerson.toInstaMember.eq(toInstaMember);
+    }
+
+    private BooleanExpression eqGender(String gender) {
+        if (gender == null || gender.equals("")) {
+            return null;
+        }
+        return likeablePerson.fromInstaMember.gender.eq(gender);
+    }
+
+    private BooleanExpression eqAttractiveTypeCode(Integer attractiveTypeCode) {
+        if (attractiveTypeCode == null) {
+            return null;
+        }
+        return likeablePerson.attractiveTypeCode.eq(attractiveTypeCode);
     }
 }
