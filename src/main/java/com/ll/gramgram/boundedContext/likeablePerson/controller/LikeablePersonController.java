@@ -10,6 +10,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -122,7 +123,7 @@ public class LikeablePersonController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/toList")
-    public String showToList(Model model) {
+    public String showToList(Model model, SearchFilter searchFilter) {
         InstaMember instaMember = rq.getMember().getInstaMember();
 
         // 인스타인증을 했는지 체크
@@ -134,4 +135,12 @@ public class LikeablePersonController {
 
         return "usr/likeablePerson/toList";
     }
+
+    @Setter
+    private static class SearchFilter {
+        private String gender;
+        private Integer attractiveTypeCode;
+        private Integer sortCode = 1; // 기본값
+    }
+
 }
