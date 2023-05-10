@@ -74,8 +74,8 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
         List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
             case 2 -> orderSpecifiers.add(likeablePerson.modifyDate.asc());
-            case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.fromLikeablePeople.size().desc());
-            case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.fromLikeablePeople.size().asc());
+            case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().desc());
+            case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().asc());
             case 5 -> {
                 orderSpecifiers.add(likeablePerson.fromInstaMember.gender.desc());
                 orderSpecifiers.add(likeablePerson.modifyDate.desc());
