@@ -379,10 +379,33 @@ public class LikeablePersonServiceTests {
 
         //when
         List<LikeablePerson> likeablePeople = likeablePersonService
-                .findByToInstaMemberWithFilter(toInstaMember, "W", null, 1)
+                .findByToInstaMemberWithFilter(toInstaMember, gender, null, 1)
                 .getData();
 
         //then
         assertThat(likeablePeople.size()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("필터링 기능 테스트 - 호감사유")
+    void t014() {
+        //given
+        Integer attractiveTypeCode = 1;
+        String instaUserName = "insta_user6";
+        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, null, attractiveTypeCode, 1)
+                .getData();
+
+        //then
+        likeablePeople.forEach(
+                        lp -> assertThat(lp.getAttractiveTypeCode()).isEqualTo(attractiveTypeCode)
+                );
+
+    }
+
+    
 }
