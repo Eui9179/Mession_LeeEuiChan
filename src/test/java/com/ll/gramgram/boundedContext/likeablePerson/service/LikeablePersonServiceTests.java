@@ -407,5 +407,22 @@ public class LikeablePersonServiceTests {
 
     }
 
-    
+    @Test
+    @DisplayName("필터링 기능 테스트 - 정렬 - 인기도 많은 순")
+    void t015() {
+        //given
+        String instaUserName = "insta_user6";
+        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, null, null, 3)
+                .getData();
+
+        for (int i = 0; i < likeablePeople.size() - 1; i++) {
+            assertThat(likeablePeople.get(i).getFromInstaMember().getToLikeablePeople().size())
+                    .isGreaterThan(likeablePeople.get(i + 1).getFromInstaMember().getToLikeablePeople().size());
+        }
+    }
 }
