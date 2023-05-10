@@ -36,7 +36,7 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
 
     @Override
     public List<LikeablePerson> findQslByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, Integer sortCode) {
+            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode) {
         if (toInstaMember == null) {
             return null;
         }

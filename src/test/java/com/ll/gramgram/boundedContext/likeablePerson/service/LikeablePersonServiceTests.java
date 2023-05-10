@@ -3,6 +3,7 @@ package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.TestUt;
 import com.ll.gramgram.base.appConfig.AppConfig;
+import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
@@ -364,5 +365,24 @@ public class LikeablePersonServiceTests {
 
         //then
         assertThat(likeablePeople.size()).isEqualTo(1);
+    }
+
+
+    @Test
+    @DisplayName("필터링 기능 테스트 - 성별")
+    void t013() {
+        //given
+        String gender = "W";
+        String instaUserName = "insta_user6";
+        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, "W", null, 1)
+                .getData();
+
+        //then
+        assertThat(likeablePeople.size()).isEqualTo(2);
     }
 }

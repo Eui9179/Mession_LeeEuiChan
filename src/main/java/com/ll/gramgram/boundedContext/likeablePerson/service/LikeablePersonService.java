@@ -223,8 +223,8 @@ public class LikeablePersonService {
         return RsData.of("S-1", "호감사유변경이 가능합니다.");
     }
 
-    public RsData findByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, Integer sortCode) {
+    public RsData<List<LikeablePerson>> findByToInstaMemberWithFilter(
+            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode) {
 
         List<LikeablePerson> likeablePeople = likeablePersonRepository
                 .findQslByToInstaMemberWithFilter(toInstaMember, gender, attractiveTypeCode, sortCode);

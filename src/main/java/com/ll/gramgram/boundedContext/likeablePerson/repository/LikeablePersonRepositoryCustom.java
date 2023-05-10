@@ -10,5 +10,5 @@ public interface LikeablePersonRepositoryCustom {
     Optional<LikeablePerson> findQslByFromInstaMemberIdAndToInstaMember_username(long fromInstaMemberId, String toInstaMemberUsername);
 
     List<LikeablePerson> findQslByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, Integer sortCode);
+            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode);
 }
