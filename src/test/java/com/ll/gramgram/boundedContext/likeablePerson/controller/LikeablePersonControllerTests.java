@@ -415,6 +415,6 @@ public class LikeablePersonControllerTests {
 
         Map<String, Object> model = mvcResult.getModelAndView().getModel();
         List<LikeablePerson> likeablePeople = (List<LikeablePerson>) model.get("likeablePeople");
-        likeablePeople.forEach(likeablePerson -> assertThat(likeablePerson.getFromInstaMember().getGender().equals("W")).isTrue()
+        likeablePeople.forEach(likeablePerson -> assertThat(likeablePerson.getFromInstaMember().getGender().equals("W")).isTrue());
     }
 }
