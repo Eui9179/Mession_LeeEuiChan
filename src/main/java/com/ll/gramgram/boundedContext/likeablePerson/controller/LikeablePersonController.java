@@ -142,6 +142,6 @@ public class LikeablePersonController {
     public static class SearchFilter {
         private String gender;
         private Integer attractiveTypeCode;
-        private Integer sortCode = 1; // 기본값
+        private int sortCode = 1; // 기본값
     }
 }

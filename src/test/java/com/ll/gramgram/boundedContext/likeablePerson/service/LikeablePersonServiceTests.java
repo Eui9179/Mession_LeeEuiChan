@@ -303,7 +303,7 @@ public class LikeablePersonServiceTests {
                 .fetch();
 
         System.out.println(likeablePeople);
-        assertThat(likeablePeople.size()).isEqualTo(2);
+        assertThat(likeablePeople.size()).isEqualTo(3);
     }
 
     @Test
@@ -339,7 +339,7 @@ public class LikeablePersonServiceTests {
 
         //then
         assertThat(likeablePeople.size()).isGreaterThan(0);
-        assertThat(likeablePeople2.size()).isEqualTo(0);
+        assertThat(likeablePeople2.size()).isEqualTo(1);
         assertThat(likeablePeople3.size()).isGreaterThan(0);
     }
 
@@ -381,6 +381,10 @@ public class LikeablePersonServiceTests {
         List<LikeablePerson> likeablePeople = likeablePersonService
                 .findByToInstaMemberWithFilter(toInstaMember, gender, null, 1)
                 .getData();
+
+        likeablePeople.forEach(
+                lp -> assertThat(lp.getFromInstaMember().getGender()).isEqualTo(gender)
+        );
 
         //then
         assertThat(likeablePeople.size()).isEqualTo(2);
