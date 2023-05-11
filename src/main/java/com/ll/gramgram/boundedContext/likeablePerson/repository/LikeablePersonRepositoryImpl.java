@@ -48,7 +48,7 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
                         eqGender(gender),
                         eqAttractiveTypeCode(attractiveTypeCode)
                 )
-                .orderBy(resolveSortCode(sortCode))
+                .orderBy(orderBySortCode(sortCode))
                 .fetch();
     }
 
@@ -70,8 +70,8 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
         return likeablePerson.attractiveTypeCode.eq(attractiveTypeCode);
     }
 
-    private OrderSpecifier[] resolveSortCode(Integer sortCode) {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
+    private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
             case 2 -> orderSpecifiers.add(likeablePerson.id.asc());
             case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().desc());
@@ -86,6 +86,6 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
             }
             default -> orderSpecifiers.add(likeablePerson.id.desc());
         }
-        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
+        return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 }
