@@ -16,9 +16,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -403,9 +406,15 @@ public class LikeablePersonControllerTests {
                         .queryParam("attractiveTypeCode", "1")
                         .queryParam("sortCode", "1"))
                         .andDo(print());
-        resultActions
+
+        MvcResult mvcResult = resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("showToList"))
-                .andExpect(status().is2xxSuccessful());
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        Map<String, Object> model = mvcResult.getModelAndView().getModel();
+        List<LikeablePerson> likeablePeople = (List<LikeablePerson>) model.get("likeablePeople");
+        likeablePeople.forEach(likeablePerson -> assertThat(likeablePerson.getFromInstaMember().getGender().equals("W")).isTrue()
     }
 }
