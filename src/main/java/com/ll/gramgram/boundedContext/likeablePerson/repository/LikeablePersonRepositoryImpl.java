@@ -73,18 +73,18 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
     private OrderSpecifier[] resolveSortCode(Integer sortCode) {
         List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
-            case 2 -> orderSpecifiers.add(likeablePerson.modifyDate.asc());
+            case 2 -> orderSpecifiers.add(likeablePerson.id.asc());
             case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().desc());
             case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().asc());
             case 5 -> {
                 orderSpecifiers.add(likeablePerson.fromInstaMember.gender.desc());
-                orderSpecifiers.add(likeablePerson.modifyDate.desc());
+                orderSpecifiers.add(likeablePerson.id.desc());
             }
             case 6 -> {
                 orderSpecifiers.add(likeablePerson.attractiveTypeCode.asc());
-                orderSpecifiers.add(likeablePerson.modifyDate.desc());
+                orderSpecifiers.add(likeablePerson.id.desc());
             }
-            default -> orderSpecifiers.add(likeablePerson.modifyDate.desc());
+            default -> orderSpecifiers.add(likeablePerson.id.desc());
         }
         return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
     }
