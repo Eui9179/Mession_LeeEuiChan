@@ -391,4 +391,21 @@ public class LikeablePersonControllerTests {
 
         assertThat(newAttractiveTypeCode).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("내가 받은 호감 검색 조건 테스트 - 성별 필터링 기능")
+    @WithUserDetails("KAKAO__2733176945")
+    void t016() throws Exception {
+        ResultActions resultActions =
+                mvc.perform(get("/usr/likeablePerson/toList")
+                                .with(csrf())
+                        .queryParam("gender", "W")
+                        .queryParam("attractiveTypeCode", "1")
+                        .queryParam("sortCode", "1"))
+                        .andDo(print());
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("showToList"))
+                .andExpect(status().is2xxSuccessful());
+    }
 }

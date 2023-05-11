@@ -9,6 +9,7 @@ import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
+import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepositoryCustom;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -215,9 +216,18 @@ public class LikeablePersonService {
             return RsData.of("F-2", "해당 호감표시를 취소할 권한이 없습니다.");
         }
 
-        if (!likeablePerson.isModifyUnlocked()) return RsData.of("F-3", "아직 호감사유변경을 할 수 없습니다. %s에는 가능합니다."
+        if (!likeablePerson.isModifyUnlocked())
+            return RsData.of("F-3", "아직 호감사유변경을 할 수 없습니다. %s에는 가능합니다."
                 .formatted(likeablePerson.getModifyUnlockDateRemainStrHuman()));
 
         return RsData.of("S-1", "호감사유변경이 가능합니다.");
+    }
+
+    public RsData<List<LikeablePerson>> findByToInstaMemberWithFilter(
+            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode) {
+
+        List<LikeablePerson> likeablePeople = likeablePersonRepository
+                .findQslByToInstaMemberWithFilter(toInstaMember, gender, attractiveTypeCode, sortCode);
+        return RsData.of("S-1", "", likeablePeople);
     }
 }
