@@ -3,6 +3,7 @@ package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.TestUt;
 import com.ll.gramgram.base.appConfig.AppConfig;
+import com.ll.gramgram.base.baseEntity.BaseEntity;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
@@ -12,10 +13,7 @@ import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,6 +41,15 @@ public class LikeablePersonServiceTests {
     private InstaMemberService instaMemberService;
     @Autowired
     private JPAQueryFactory queryFactory;
+
+    private InstaMember toInstaMember;
+
+    @BeforeEach
+    void initData() {
+        String instaUserName = "insta_user6";
+        toInstaMember = instaMemberService.findByUsername(instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
+    }
 
     @Test
     @DisplayName("테스트 1")
@@ -311,12 +318,6 @@ public class LikeablePersonServiceTests {
     @DisplayName("QueryDsl 성별 조건 검색 테스트(null 데이터 포함)")
     void t011() {
         //given
-        String instaMemberUsername = "insta_user6";
-
-        Integer attractiveTypeCode;
-        InstaMember toInstaMember = instaMemberService.findByUsername(instaMemberUsername)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java를 확인해주세요"));
-
         BooleanExpression condition = likeablePerson.toInstaMember.eq(toInstaMember);
         BooleanExpression condition_W = likeablePerson.fromInstaMember.gender.eq("W");
         BooleanExpression condition_M = likeablePerson.fromInstaMember.gender.eq("M");
@@ -348,12 +349,7 @@ public class LikeablePersonServiceTests {
     @DisplayName("QueryDsl 성별 조건 검색 테스트")
     void t012() {
         //given
-        String instaMemberUsername = "insta_user6";
         Integer attractiveTypeCode = 2;
-
-        InstaMember toInstaMember = instaMemberService.findByUsername(instaMemberUsername)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java를 확인해주세요"));
-
         BooleanExpression condition = likeablePerson.toInstaMember.eq(toInstaMember);
         BooleanExpression condition_W = likeablePerson.fromInstaMember.gender.eq("W");
         BooleanExpression condition_attractive = likeablePerson.attractiveTypeCode.eq(attractiveTypeCode);
@@ -374,10 +370,6 @@ public class LikeablePersonServiceTests {
     void t013() {
         //given
         String gender = "W";
-        String instaUserName = "insta_user6";
-        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
-
         ToListSearchForm toListSearchForm = ToListSearchForm.builder()
                 .gender(gender)
                 .attractiveTypeCode(null)
@@ -401,10 +393,6 @@ public class LikeablePersonServiceTests {
     void t014() {
         //given
         Integer attractiveTypeCode = 1;
-        String instaUserName = "insta_user6";
-        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
-
         ToListSearchForm toListSearchForm = ToListSearchForm.builder()
                 .gender(null)
                 .attractiveTypeCode(attractiveTypeCode)
@@ -417,19 +405,15 @@ public class LikeablePersonServiceTests {
 
         //then
         likeablePeople.forEach(
-                        lp -> assertThat(lp.getAttractiveTypeCode()).isEqualTo(attractiveTypeCode)
-                );
+                lp -> assertThat(lp.getAttractiveTypeCode()).isEqualTo(attractiveTypeCode)
+        );
 
     }
 
     @Test
-    @DisplayName("필터링 기능 테스트 - 정렬 - 인기도 많은 순")
+    @DisplayName("정렬 기능 테스트 - 정렬 - 인기도 많은 순")
     void t015() {
         //given
-        String instaUserName = "insta_user6";
-        InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
-                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
-
         ToListSearchForm toListSearchForm = ToListSearchForm.builder()
                 .gender(null)
                 .attractiveTypeCode(null)
@@ -441,7 +425,79 @@ public class LikeablePersonServiceTests {
                 .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
                 .getData();
 
+        //then
         assertThat(likeablePeople).isSortedAccordingTo(
-                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount(), Comparator.reverseOrder()));
+                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount(), Comparator.reverseOrder())
+        );
+    }
+
+    @Test
+    @DisplayName("정렬 기능 테스트 - 정렬 - 인기도 적은 순")
+    void t016() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(4)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        //then
+        assertThat(likeablePeople).isSortedAccordingTo(
+                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount())
+        );
+    }
+
+    @Test
+    @DisplayName("정렬 기능 테스트 - 성별")
+    void t017() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(5)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        //then
+        assertThat(likeablePeople)
+                .isSortedAccordingTo(
+                        Comparator.comparing(e -> e.getFromInstaMember().getGender(), Comparator.reverseOrder()))
+                .filteredOn(e -> e.getFromInstaMember().getGender().equals("W"))
+                .isSortedAccordingTo(
+                        Comparator.comparing(BaseEntity::getId, Comparator.reverseOrder()));
+    }
+
+    @Test
+    @DisplayName("정렬 기능 - 호감 사유 정렬")
+    void t018() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(6)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        System.out.println("likeablePeople = " + likeablePeople);
+        //then
+        assertThat(likeablePeople)
+                .isSortedAccordingTo(
+                        Comparator.comparing(LikeablePerson::getAttractiveTypeCode))
+                .filteredOn(e -> e.getAttractiveTypeCode() == 1)
+                .isSortedAccordingTo(
+                        Comparator.comparing(BaseEntity::getId, Comparator.reverseOrder()));
     }
 }
