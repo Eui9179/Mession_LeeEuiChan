@@ -17,6 +17,7 @@ public abstract class InstaMemberBase extends BaseEntity {
     @Setter
     String gender;
 
+    long likesCount;
     long likesCountByGenderWomanAndAttractiveTypeCode1;
     long likesCountByGenderWomanAndAttractiveTypeCode2;
     long likesCountByGenderWomanAndAttractiveTypeCode3;
@@ -46,5 +47,9 @@ public abstract class InstaMemberBase extends BaseEntity {
 
     public Long getLikes() {
         return getLikesCountByGenderWoman() + getLikesCountByGenderMan();
+    }
+
+    public void updateLikesCount() {
+        this.likesCount = getLikes();
     }
 }

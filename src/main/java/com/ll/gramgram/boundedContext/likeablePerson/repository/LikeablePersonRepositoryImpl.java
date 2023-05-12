@@ -1,6 +1,7 @@
 package com.ll.gramgram.boundedContext.likeablePerson.repository;
 
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -36,7 +37,7 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
 
     @Override
     public List<LikeablePerson> findQslByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode) {
+            InstaMember toInstaMember, ToListSearchForm toListSearchForm) {
         if (toInstaMember == null) {
             return null;
         }
@@ -45,10 +46,10 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
                 .selectFrom(likeablePerson)
                 .where(
                         eqToInstaMember(toInstaMember),
-                        eqGender(gender),
-                        eqAttractiveTypeCode(attractiveTypeCode)
+                        eqGender(toListSearchForm.getGender()),
+                        eqAttractiveTypeCode(toListSearchForm.getAttractiveTypeCode())
                 )
-                .orderBy(orderBySortCode(sortCode))
+                .orderBy(orderBySortCode(toListSearchForm.getSortCode()))
                 .fetch();
     }
 
@@ -74,8 +75,8 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
             case 2 -> orderSpecifiers.add(likeablePerson.id.asc());
-            case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().desc());
-            case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.toLikeablePeople.size().asc());
+            case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.likesCount.desc());
+            case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.likesCount.asc());
             case 5 -> {
                 orderSpecifiers.add(likeablePerson.fromInstaMember.gender.desc());
                 orderSpecifiers.add(likeablePerson.id.desc());

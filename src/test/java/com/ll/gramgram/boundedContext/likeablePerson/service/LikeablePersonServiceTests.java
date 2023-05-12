@@ -3,9 +3,9 @@ package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.TestUt;
 import com.ll.gramgram.base.appConfig.AppConfig;
-import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
 import com.ll.gramgram.boundedContext.member.entity.Member;
@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.ll.gramgram.boundedContext.likeablePerson.entity.QLikeablePerson.likeablePerson;
@@ -377,10 +378,15 @@ public class LikeablePersonServiceTests {
         InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
                 .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
 
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(gender)
+                .attractiveTypeCode(null)
+                .sortCode(1)
+                .build();
+
         //when
         List<LikeablePerson> likeablePeople = likeablePersonService
-                .findByToInstaMemberWithFilter(toInstaMember, gender, null, 1)
-                .getData();
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm).getData();
 
         likeablePeople.forEach(
                 lp -> assertThat(lp.getFromInstaMember().getGender()).isEqualTo(gender)
@@ -399,10 +405,15 @@ public class LikeablePersonServiceTests {
         InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
                 .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
 
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(attractiveTypeCode)
+                .sortCode(1)
+                .build();
+
         //when
         List<LikeablePerson> likeablePeople = likeablePersonService
-                .findByToInstaMemberWithFilter(toInstaMember, null, attractiveTypeCode, 1)
-                .getData();
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm).getData();
 
         //then
         likeablePeople.forEach(
@@ -419,14 +430,18 @@ public class LikeablePersonServiceTests {
         InstaMember toInstaMember = instaMemberService.findByUsername(instaUserName)
                 .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
 
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(3)
+                .build();
+
         //when
         List<LikeablePerson> likeablePeople = likeablePersonService
-                .findByToInstaMemberWithFilter(toInstaMember, null, null, 3)
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
                 .getData();
 
-        for (int i = 0; i < likeablePeople.size() - 1; i++) {
-            assertThat(likeablePeople.get(i).getFromInstaMember().getToLikeablePeople().size())
-                    .isGreaterThan(likeablePeople.get(i + 1).getFromInstaMember().getToLikeablePeople().size());
-        }
+        assertThat(likeablePeople).isSortedAccordingTo(
+                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount(), Comparator.reverseOrder()));
     }
 }

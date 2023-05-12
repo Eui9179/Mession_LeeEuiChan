@@ -31,6 +31,8 @@ public class QInstaMemberBase extends EntityPathBase<InstaMemberBase> {
 
     public final NumberPath<Long> likes = createNumber("likes", Long.class);
 
+    public final NumberPath<Long> likesCount = createNumber("likesCount", Long.class);
+
     public final NumberPath<Long> likesCountByAttractionTypeCode1 = createNumber("likesCountByAttractionTypeCode1", Long.class);
 
     public final NumberPath<Long> likesCountByAttractionTypeCode2 = createNumber("likesCountByAttractionTypeCode2", Long.class);

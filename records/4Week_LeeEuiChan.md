@@ -19,14 +19,14 @@
     ```java
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/toList")
-    public String showToList(Model model, SearchFilter searchFilter) {
+    public String showToList(Model model, SearchFilter toListSearchForm) {
         InstaMember instaMember = rq.getMember().getInstaMember();
 
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
             // 해당 인스타회원이 좋아하는 사람들 목록
             RsData likeablePeople = likeablePersonService.findByToInstaMemberWithFilter(
-                    instaMember, searchFilter.gender, searchFilter.attractiveTypeCode, searchFilter.sortCode
+                    instaMember, toListSearchForm.gender, toListSearchForm.attractiveTypeCode, toListSearchForm.sortCode
             );
             model.addAttribute("likeablePeople", likeablePeople.getData());
         }

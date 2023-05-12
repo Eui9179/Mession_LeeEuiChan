@@ -1,6 +1,7 @@
 package com.ll.gramgram.boundedContext.likeablePerson.repository;
 
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface LikeablePersonRepositoryCustom {
     Optional<LikeablePerson> findQslByFromInstaMemberIdAndToInstaMember_username(long fromInstaMemberId, String toInstaMemberUsername);
 
     List<LikeablePerson> findQslByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode);
+            InstaMember toInstaMember, ToListSearchForm toListSearchForm);
 }

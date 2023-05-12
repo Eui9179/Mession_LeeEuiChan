@@ -39,6 +39,9 @@ public class QInstaMember extends EntityPathBase<InstaMember> {
     public final NumberPath<Long> likes = _super.likes;
 
     //inherited
+    public final NumberPath<Long> likesCount = _super.likesCount;
+
+    //inherited
     public final NumberPath<Long> likesCountByAttractionTypeCode1 = _super.likesCountByAttractionTypeCode1;
 
     //inherited

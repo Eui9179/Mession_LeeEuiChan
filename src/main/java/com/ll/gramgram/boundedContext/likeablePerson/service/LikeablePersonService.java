@@ -7,9 +7,9 @@ import com.ll.gramgram.base.event.EventBeforeCancelLike;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
-import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepositoryCustom;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -224,10 +224,10 @@ public class LikeablePersonService {
     }
 
     public RsData<List<LikeablePerson>> findByToInstaMemberWithFilter(
-            InstaMember toInstaMember, String gender, Integer attractiveTypeCode, int sortCode) {
+            InstaMember toInstaMember, ToListSearchForm toListSearchForm) {
 
         List<LikeablePerson> likeablePeople = likeablePersonRepository
-                .findQslByToInstaMemberWithFilter(toInstaMember, gender, attractiveTypeCode, sortCode);
+                .findQslByToInstaMemberWithFilter(toInstaMember, toListSearchForm);
         return RsData.of("S-1", "", likeablePeople);
     }
 }

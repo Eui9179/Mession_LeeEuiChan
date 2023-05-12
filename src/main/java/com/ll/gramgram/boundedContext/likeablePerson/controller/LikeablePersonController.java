@@ -3,6 +3,7 @@ package com.ll.gramgram.boundedContext.likeablePerson.controller;
 import com.ll.gramgram.base.rq.Rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
 import jakarta.validation.Valid;
@@ -10,7 +11,6 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -123,25 +123,16 @@ public class LikeablePersonController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/toList")
-    public String showToList(Model model, SearchFilter searchFilter) {
+    public String showToList(Model model, ToListSearchForm toListSearchForm) {
         InstaMember instaMember = rq.getMember().getInstaMember();
 
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
             // 해당 인스타회원이 좋아하는 사람들 목록
-            RsData likeablePeople = likeablePersonService.findByToInstaMemberWithFilter(
-                    instaMember, searchFilter.gender, searchFilter.attractiveTypeCode, searchFilter.sortCode
-            );
+            RsData likeablePeople = likeablePersonService.findByToInstaMemberWithFilter(instaMember, toListSearchForm);
             model.addAttribute("likeablePeople", likeablePeople.getData());
         }
 
         return "usr/likeablePerson/toList";
-    }
-
-    @Setter
-    public static class SearchFilter {
-        private String gender;
-        private Integer attractiveTypeCode;
-        private int sortCode = 1; // 기본값
     }
 }
