@@ -397,7 +397,7 @@ public class LikeablePersonControllerTests {
 
     @Test
     @DisplayName("내가 받은 호감 검색 조건 테스트 - 성별 필터링 기능")
-    @WithUserDetails("KAKAO__2733176945")
+    @WithUserDetails("user3")
     void t016() throws Exception {
         ResultActions resultActions =
                 mvc.perform(get("/usr/likeablePerson/toList")
