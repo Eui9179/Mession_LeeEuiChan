@@ -97,8 +97,8 @@ public class LikeablePersonControllerTests {
     }
 
     @Test
-    @DisplayName("등록 폼 처리(user2가 user3에게 호감표시(외모))")
-    @WithUserDetails("user2")
+    @DisplayName("등록 폼 처리(user5가 user3에게 호감표시(외모))")
+    @WithUserDetails("user5")
     void t003() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
