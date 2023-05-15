@@ -3,23 +3,27 @@ package com.ll.gramgram.boundedContext.likeablePerson.service;
 
 import com.ll.gramgram.TestUt;
 import com.ll.gramgram.base.appConfig.AppConfig;
+import com.ll.gramgram.base.baseEntity.BaseEntity;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
+import static com.ll.gramgram.boundedContext.likeablePerson.entity.QLikeablePerson.likeablePerson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -33,6 +37,19 @@ public class LikeablePersonServiceTests {
     private LikeablePersonService likeablePersonService;
     @Autowired
     private LikeablePersonRepository likeablePersonRepository;
+    @Autowired
+    private InstaMemberService instaMemberService;
+    @Autowired
+    private JPAQueryFactory queryFactory;
+
+    private InstaMember toInstaMember;
+
+    @BeforeEach
+    void initData() {
+        String instaUserName = "insta_user6";
+        toInstaMember = instaMemberService.findByUsername(instaUserName)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java 참조"));
+    }
 
     @Test
     @DisplayName("테스트 1")
@@ -278,5 +295,209 @@ public class LikeablePersonServiceTests {
         LocalDateTime now = LocalDateTime.now().plusSeconds(AppConfig.getLikeablePersonModifyCoolTime() + 10);
 
         assertThat(modifyUnlockDate.isBefore(now)).isTrue();
+    }
+
+    @Test
+    @DisplayName("QueryDsl 테스트")
+    void t010() {
+        String instaMemberUsername = "insta_user6";
+
+        InstaMember toInstaMember = instaMemberService.findByUsername(instaMemberUsername)
+                .orElseThrow(() -> new RuntimeException("데이터가 없습니다. NotProd.java를 확인해주세요"));
+
+        List<LikeablePerson> likeablePeople = queryFactory
+                .selectFrom(likeablePerson)
+                .where(likeablePerson.toInstaMember.eq(toInstaMember))
+                .fetch();
+
+        System.out.println(likeablePeople);
+        assertThat(likeablePeople.size()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("QueryDsl 성별 조건 검색 테스트(null 데이터 포함)")
+    void t011() {
+        //given
+        BooleanExpression condition = likeablePerson.toInstaMember.eq(toInstaMember);
+        BooleanExpression condition_W = likeablePerson.fromInstaMember.gender.eq("W");
+        BooleanExpression condition_M = likeablePerson.fromInstaMember.gender.eq("M");
+        BooleanExpression condition_Null = null;
+
+        //when
+        List<LikeablePerson> likeablePeople = queryFactory
+                .selectFrom(likeablePerson)
+                .where(condition, condition_W)
+                .fetch();
+
+        List<LikeablePerson> likeablePeople2 = queryFactory
+                .selectFrom(likeablePerson)
+                .where(condition, condition_M)
+                .fetch();
+
+        List<LikeablePerson> likeablePeople3 = queryFactory
+                .selectFrom(likeablePerson)
+                .where(condition, condition_Null)
+                .fetch();
+
+        //then
+        assertThat(likeablePeople.size()).isGreaterThan(0);
+        assertThat(likeablePeople2.size()).isEqualTo(1);
+        assertThat(likeablePeople3.size()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("QueryDsl 성별 조건 검색 테스트")
+    void t012() {
+        //given
+        Integer attractiveTypeCode = 2;
+        BooleanExpression condition = likeablePerson.toInstaMember.eq(toInstaMember);
+        BooleanExpression condition_W = likeablePerson.fromInstaMember.gender.eq("W");
+        BooleanExpression condition_attractive = likeablePerson.attractiveTypeCode.eq(attractiveTypeCode);
+
+        //when
+        List<LikeablePerson> likeablePeople = queryFactory
+                .selectFrom(likeablePerson)
+                .where(condition, condition_W, condition_attractive)
+                .fetch();
+
+        //then
+        assertThat(likeablePeople.size()).isEqualTo(1);
+    }
+
+
+    @Test
+    @DisplayName("필터링 기능 테스트 - 성별")
+    void t013() {
+        //given
+        String gender = "W";
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(gender)
+                .attractiveTypeCode(null)
+                .sortCode(1)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm).getData();
+
+        likeablePeople.forEach(
+                lp -> assertThat(lp.getFromInstaMember().getGender()).isEqualTo(gender)
+        );
+
+        //then
+        assertThat(likeablePeople.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("필터링 기능 테스트 - 호감사유")
+    void t014() {
+        //given
+        Integer attractiveTypeCode = 1;
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(attractiveTypeCode)
+                .sortCode(1)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm).getData();
+
+        //then
+        likeablePeople.forEach(
+                lp -> assertThat(lp.getAttractiveTypeCode()).isEqualTo(attractiveTypeCode)
+        );
+
+    }
+
+    @Test
+    @DisplayName("정렬 기능 테스트 - 정렬 - 인기도 많은 순")
+    void t015() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(3)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        //then
+        assertThat(likeablePeople).isSortedAccordingTo(
+                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount(), Comparator.reverseOrder())
+        );
+    }
+
+    @Test
+    @DisplayName("정렬 기능 테스트 - 정렬 - 인기도 적은 순")
+    void t016() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(4)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        //then
+        assertThat(likeablePeople).isSortedAccordingTo(
+                Comparator.comparing(e -> e.getFromInstaMember().getLikesCount())
+        );
+    }
+
+    @Test
+    @DisplayName("정렬 기능 테스트 - 성별")
+    void t017() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(5)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        //then
+        assertThat(likeablePeople)
+                .isSortedAccordingTo(
+                        Comparator.comparing(e -> e.getFromInstaMember().getGender(), Comparator.reverseOrder()))
+                .filteredOn(e -> e.getFromInstaMember().getGender().equals("W"))
+                .isSortedAccordingTo(
+                        Comparator.comparing(BaseEntity::getId, Comparator.reverseOrder()));
+    }
+
+    @Test
+    @DisplayName("정렬 기능 - 호감 사유 정렬")
+    void t018() {
+        //given
+        ToListSearchForm toListSearchForm = ToListSearchForm.builder()
+                .gender(null)
+                .attractiveTypeCode(null)
+                .sortCode(6)
+                .build();
+
+        //when
+        List<LikeablePerson> likeablePeople = likeablePersonService
+                .findByToInstaMemberWithFilter(toInstaMember, toListSearchForm)
+                .getData();
+
+        System.out.println("likeablePeople = " + likeablePeople);
+        //then
+        assertThat(likeablePeople)
+                .isSortedAccordingTo(
+                        Comparator.comparing(LikeablePerson::getAttractiveTypeCode))
+                .filteredOn(e -> e.getAttractiveTypeCode() == 1)
+                .isSortedAccordingTo(
+                        Comparator.comparing(BaseEntity::getId, Comparator.reverseOrder()));
     }
 }

@@ -1,14 +1,22 @@
 package com.ll.gramgram.boundedContext.likeablePerson.repository;
 
+import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
+import com.ll.gramgram.boundedContext.likeablePerson.dto.request.ToListSearchForm;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.ll.gramgram.boundedContext.likeablePerson.entity.QLikeablePerson.likeablePerson;
 
 @RequiredArgsConstructor
+@Slf4j
 public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -25,5 +33,60 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
                         )
                         .fetchOne()
         );
+    }
+
+    @Override
+    public List<LikeablePerson> findQslByToInstaMemberWithFilter(
+            InstaMember toInstaMember, ToListSearchForm toListSearchForm) {
+        if (toInstaMember == null) {
+            return null;
+        }
+
+        return jpaQueryFactory
+                .selectFrom(likeablePerson)
+                .where(
+                        eqToInstaMember(toInstaMember),
+                        eqGender(toListSearchForm.getGender()),
+                        eqAttractiveTypeCode(toListSearchForm.getAttractiveTypeCode())
+                )
+                .orderBy(orderBySortCode(toListSearchForm.getSortCode()))
+                .fetch();
+    }
+
+    private BooleanExpression eqToInstaMember(InstaMember toInstaMember) {
+        return likeablePerson.toInstaMember.eq(toInstaMember);
+    }
+
+    private BooleanExpression eqGender(String gender) {
+        if (gender == null || gender.equals("")) {
+            return null;
+        }
+        return likeablePerson.fromInstaMember.gender.eq(gender);
+    }
+
+    private BooleanExpression eqAttractiveTypeCode(Integer attractiveTypeCode) {
+        if (attractiveTypeCode == null) {
+            return null;
+        }
+        return likeablePerson.attractiveTypeCode.eq(attractiveTypeCode);
+    }
+
+    private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+        switch (sortCode) {
+            case 2 -> orderSpecifiers.add(likeablePerson.id.asc());
+            case 3 -> orderSpecifiers.add(likeablePerson.fromInstaMember.likesCount.desc());
+            case 4 -> orderSpecifiers.add(likeablePerson.fromInstaMember.likesCount.asc());
+            case 5 -> {
+                orderSpecifiers.add(likeablePerson.fromInstaMember.gender.desc());
+                orderSpecifiers.add(likeablePerson.id.desc());
+            }
+            case 6 -> {
+                orderSpecifiers.add(likeablePerson.attractiveTypeCode.asc());
+                orderSpecifiers.add(likeablePerson.id.desc());
+            }
+            default -> orderSpecifiers.add(likeablePerson.id.desc());
+        }
+        return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 }
