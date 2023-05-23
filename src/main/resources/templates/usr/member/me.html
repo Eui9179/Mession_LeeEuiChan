@@ -259,7 +259,7 @@
             </span>
         </a>
 
-        <div class="text-center mt-10" th:if="${#lists.isEmpty(@rq.member.instaMember.toLikeablePeople)}">
+        <div class="text-center" th:if="${#lists.isEmpty(@rq.member.instaMember.toLikeablePeople)}">
             <i class="fa-regular fa-face-laugh"></i> 최근에 받은 호감이 없습니다.
         </div>
 
@@ -276,7 +276,7 @@
                             <i class="fa-regular fa-face-laugh-beam"></i> 호감표시자
                         </div>
                         <div class="mt-2">
-                            <svg th:data-jdenticon-value="|${likeablePerson.jdenticon}|" width="120" height="120"></svg>
+                            <svg th:data-jdenticon-value="|${likeablePerson.jdenticon}|" width="50" height="50"></svg>
                         </div>
                     </div>
 

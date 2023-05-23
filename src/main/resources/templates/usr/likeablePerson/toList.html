@@ -6,14 +6,14 @@
 
 <body>
 
-<main layout:fragment="main" class="flex-grow flex items-center justify-center">
+<main layout:fragment="main" class="flex-grow flex items-start justify-center">
     <div class="max-w-2xl w-full px-4">
         <div th:unless="${@rq.member.hasConnectedInstaMember}" th:include="usr/part/needToConnect::base"></div>
 
         <th:block th:if="${@rq.member.hasConnectedInstaMember}">
-            <div th:unless="${!#lists.isEmpty(likeablePeople)}" class="text-center">
-                <div><i class="fa-regular fa-face-laugh"></i> 목록이 비어있습니다. 당신이 받은 호감을 보여줍니다.</div>
-            </div>
+<!--            <div th:unless="${!#lists.isEmpty(likeablePeople)}" class="text-center">-->
+<!--                <div><i class="fa-regular fa-face-laugh"></i> 목록이 비어있습니다. 당신이 받은 호감을 보여줍니다.</div>-->
+<!--            </div>-->
 
             <h1 class="mb-4" th:if="${!#lists.isEmpty(likeablePeople)}">
                 <i class="fa-solid fa-list-ol"></i>
@@ -88,6 +88,10 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <div th:unless="${!#lists.isEmpty(likeablePeople)}" class="text-center mt-10">
+                <div><i class="fa-regular fa-face-laugh"></i> 목록이 비어있습니다. 당신이 받은 호감을 보여줍니다.</div>
             </div>
 
             <ul th:if="${!#lists.isEmpty(likeablePeople)}" class="flex flex-col gap-4 mt-4">

@@ -16,8 +16,8 @@
                     </li>
                     <li th:if="${@rq.admin}"><a href="/adm/home/main"><i class="fa-solid fa-gauge"></i> 관리자 페이지</a>
                     </li>
-                    <li th:if="${@rq.login}"><a href="/usr/member/pop"><i class="fa-solid fa-chart-line"></i> 내 인기</a>
-                    </li>
+<!--                    <li th:if="${@rq.login}"><a href="/usr/member/pop"><i class="fa-solid fa-chart-line"></i> 내 인기</a>-->
+<!--                    </li>-->
                     <li th:if="${@rq.login}">
                         <a href="/usr/likeablePerson/toList">
                             <i class="fa-solid fa-list-ul"></i> 내가 받은 호감
@@ -37,8 +37,8 @@
                         </a>
                     </li>
                     <div th:if="${@rq.login}" class="divider"></div>
-                    <li><a href="/usr/home/about"><i class="fa-solid fa-circle-info"></i> 그램그램이란?</a>
-                    </li>
+<!--                    <li><a href="/usr/home/about"><i class="fa-solid fa-circle-info"></i> 그램그램이란?</a>-->
+<!--                    </li>-->
                     <li th:if="${@rq.login}">
                         <a href="javascript:" onclick="$(this).next().submit();">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃
@@ -60,9 +60,9 @@
             </a>
         </div>
         <div class="navbar-end">
-            <a href="/usr/member/pop" class="btn btn-ghost gap-1" th:if="${@rq.login}">
-                <i class="fa-solid fa-chart-line"></i>
-            </a>
+<!--            <a href="/usr/member/pop" class="btn btn-ghost gap-1" th:if="${@rq.login}">-->
+<!--                <i class="fa-solid fa-chart-line"></i>-->
+<!--            </a>-->
             <a href="/usr/notification/list" class="btn btn-ghost btn-circle" th:if="${@rq.login}">
                 <div class="indicator">
                     <i class="fa-regular fa-bell"></i>
